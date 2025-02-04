@@ -25,12 +25,12 @@ Se estiver usando GitHub Codespaces, basta abrir o repositório e iniciar um nov
 
 📂 Estrutura do Repositório
 
-js-practice-ipad/
-│── exercises/        # Exercícios resolvidos
-│── projects/         # Pequenos projetos
-│── notes/            # Anotações e explicações
-│── assets/           # Imagens, ícones ou recursos visuais
-│── README.md         # Documentação do repositório
+📂 Estrutura do Repositório
+	•	📁 exercises/ → Contém exercícios resolvidos de JavaScript.
+	•	📁 projects/ → Pequenos projetos desenvolvidos durante o aprendizado.
+	•	📁 notes/ → Anotações, explicações e resumos sobre conceitos importantes.
+	•	📁 assets/ → Recursos visuais, como imagens ou ícones usados nos projetos.
+	•	📄 README.md → Documentação do repositório, explicando seu propósito e organização.
 
 🎯 Objetivo
 
