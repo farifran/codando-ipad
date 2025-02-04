@@ -24,8 +24,6 @@ Se quiser testar os arquivos localmente:
 Se estiver usando GitHub Codespaces, basta abrir o repositório e iniciar um novo Codespace para editar e rodar os arquivos diretamente no VS Code online.
 
 📂 Estrutura do Repositório
-
-📂 Estrutura do Repositório
 	•	📁 exercises/ → Contém exercícios resolvidos de JavaScript.
 	•	📁 projects/ → Pequenos projetos desenvolvidos durante o aprendizado.
 	•	📁 notes/ → Anotações, explicações e resumos sobre conceitos importantes.
