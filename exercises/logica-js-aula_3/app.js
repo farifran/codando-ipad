@@ -8,4 +8,3 @@ if (fimDeSemana.includes(diaSemana)) {
 } else {
   alert('Boa semana!');
 }
-let diaSemana.toLowerCase() = prompt('Qual é o dia da semana?');
