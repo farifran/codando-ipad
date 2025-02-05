@@ -1,8 +1,11 @@
-alert('Qual é o dia da semana?');
-let diaSemana = 'Lunes';
-let fimSemana = 'Sábado' || 'Domingo';
-let chute = prompt('Escolha um número entre 1 e 10');
+let diaSemana = prompt('Qual é o dia da semana?').toLowerCase();
+console.log(diaSemana);
 
-if (chute == numeroSecreto) {
-    console.log('Isso ai! Você descobriu o número secreto (5)');
+const fimDeSemana = ['sábado', 'sabado', 'domingo', '7', '1'];
+
+if (fimDeSemana.includes(diaSemana)) {
+  alert('Bom fim de semana!');
+} else {
+  alert('Boa semana!');
 }
+let diaSemana.toLowerCase() = prompt('Qual é o dia da semana?');
