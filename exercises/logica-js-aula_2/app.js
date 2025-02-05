@@ -8,5 +8,5 @@ if (chute == numeroSecreto) {
     alert(`Isso ai! Você descobriu o número secreto ${numeroSecreto}`);
 } else {
     alert('Você errou :(');
-    console.log('Valor numero secreto:', numeroSecreto);
+    console.log('Valor numero secreto:', numeroSecreto, 'Valor chute:', chute);
 }
