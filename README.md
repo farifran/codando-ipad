@@ -1,6 +1,6 @@
-# JS Practice iPad  
+# JS Practice with iPad  
 
-Este repositório contém minhas práticas e experimentos em **JavaScript**, desenvolvidos diretamente no **iPad** usando **GitHub Codespaces** e **Visual Studio Code**. Aqui você encontrará exercícios, pequenos projetos e anotações relacionadas ao meu aprendizado.  
+Este repositório contém minhas práticas e experimentos em **JavaScript**, desenvolvidos diretamente no **iPad** usando **GitHub Codespaces** e **Web Visual Studio Code**. Aqui você encontrará exercícios, pequenos projetos e anotações relacionadas ao meu aprendizado.  
 
 ## 📌 Sobre este repositório  
 
@@ -37,5 +37,5 @@ Se estiver usando GitHub Codespaces, basta abrir o repositório e iniciar um nov
 
 🎯 Objetivo
 
-Este repositório serve como um diário de aprendizado, onde registro meu progresso no desenvolvimento com JavaScript.
+Este repositório serve como um diário de aprendizado, onde registro meu progresso no desenvolvimento com JavaScript no Ipad Pro.
 Sinta-se à vontade para explorar e, se quiser, contribuir com sugestões! 🚀
