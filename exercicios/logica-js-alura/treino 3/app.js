@@ -25,5 +25,7 @@ let numeroAleatorio = parseInt(Math.random() * 10 + 1);
 console.log(numeroAleatorio);
 
 //Use o Math.random para gerar um número inteiro entre 1 e 1000 e exiba esse número no console
+numeroAleatorio = Math.random() * 1000 + 1;
+console.log(parseInt(numeroAleatorio)); 
 numeroAleatorio = parseInt(Math.random() * 1000 + 1);
 alert(numeroAleatorio);
