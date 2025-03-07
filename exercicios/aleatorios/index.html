@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Simulação de Estratégia de Trading Escalonada</title>
+  <title>Simulação de Estratégia de Trading Escalonada - Botões de Cenário</title>
+  <!-- Usando a última versão estável do Highcharts -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://code.highcharts.com/css/highcharts.css" rel="stylesheet">
   <style>
@@ -34,10 +35,17 @@
     .exit  { color: #28a745; }
     .stop  { color: #dc3545; }
     .scenario-description { margin-top: 20px; }
+    .is-invalid {
+      border-color: #dc3545;
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <div class="container py-5">
+  <div class="container py-4">
     <h1 class="text-center mb-4">Simulação de Estratégia de Trading Escalonada</h1>
     
     <div class="row">
@@ -46,21 +54,26 @@
         <section id="priceLevelsSection">
           <h2>Níveis de Preço</h2>
           <div class="price-levels">
+            <!-- Inputs e validação -->
             <div class="mb-3">
               <label for="entryPrice" class="form-label">Preço de entrada (valor médio):</label>
               <input type="number" id="entryPrice" class="form-control" value="100">
+              <div id="entryPriceError" class="error-message"></div>
             </div>
             <div class="mb-3">
               <label for="stopLoss" class="form-label">Stop loss:</label>
               <input type="number" id="stopLoss" class="form-control" value="90">
+              <div id="stopLossError" class="error-message"></div>
             </div>
             <div class="mb-3">
               <label for="totalCapital" class="form-label">Capital total disponível:</label>
               <input type="number" id="totalCapital" class="form-control" value="10000">
+              <div id="totalCapitalError" class="error-message"></div>
             </div>
             <div class="mb-3">
               <label for="riskPercentage" class="form-label">Percentual de risco (1-5%):</label>
               <input type="number" id="riskPercentage" class="form-control" value="2" min="1" max="5">
+              <div id="riskPercentageError" class="error-message"></div>
             </div>
             <button id="calculateBtn" class="btn btn-primary">Calcular</button>
             <div id="priceLevelsResult" class="mt-3"></div>
@@ -68,54 +81,116 @@
         </section>
       </div>
       
-      <!-- Seção de Cenários -->
+      <!-- Seção de Cenários + Gráfico -->
       <div class="col-md-6">
         <section id="scenariosSection">
           <h2>Cenários</h2>
-          <div class="scenario-container">
-            <div class="mb-3">
-              <label for="scenarioSelect" class="form-label">Selecione um cenário:</label>
-              <select class="form-select" id="scenarioSelect">
-                <option value="HighDirect">Alta Direta</option>
-                <option value="FullMovement">Movimento Completo</option>
-                <option value="HighBreakEven">Alta + Break Even</option>
-                <option value="FullBreakEven">Completo + Break Even</option>
-                <option value="LowFailure">Falha na Baixa</option>
-                <option value="TotalFailure">Falha Total</option>
-              </select>
+
+          <!-- Botões de cenário (agrupados por categoria) -->
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <!-- Sucesso (verde) -->
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-success scenario-btn" data-scenario="HighDirect">
+                Alta Direta
+              </button>
+              <button type="button" class="btn btn-success scenario-btn" data-scenario="FullMovement">
+                Movimento Completo
+              </button>
             </div>
-            <div id="scenarioChart" class="chart"></div>
-            <div id="scenarioDescription" class="scenario-description"></div>
-            <div id="scenarioResult" class="scenario-description"></div>
+            <!-- Break Even (azul) -->
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-primary scenario-btn" data-scenario="HighBreakEven">
+                Alta + Break Even
+              </button>
+              <button type="button" class="btn btn-primary scenario-btn" data-scenario="FullBreakEven">
+                Completo + Break Even
+              </button>
+            </div>
+            <!-- Falha (vermelho) -->
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-danger scenario-btn" data-scenario="LowFailure">
+                Falha na Baixa
+              </button>
+              <button type="button" class="btn btn-danger scenario-btn" data-scenario="TotalFailure">
+                Falha Total
+              </button>
+            </div>
           </div>
+
+          <div id="scenarioChart" class="chart"></div>
+          <div id="scenarioDescription" class="scenario-description"></div>
+          <div id="scenarioResult" class="scenario-description"></div>
+          <div id="pointDetails" class="mt-3"></div>
         </section>
       </div>
     </div>
   </div>
-
-  <!-- Scripts: Apenas o Bootstrap e o Highcharts principal -->
+  
+  <!-- Scripts: Bootstrap e Highcharts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
   <script src="https://code.highcharts.com/highcharts.js" defer></script>
   
-  <!-- Script principal -->
+  <!-- Script Principal -->
   <script defer>
     document.addEventListener("DOMContentLoaded", () => {
-      // Cache dos elementos do DOM
-      const entryPriceEl = document.getElementById("entryPrice");
-      const stopLossEl = document.getElementById("stopLoss");
-      const totalCapitalEl = document.getElementById("totalCapital");
-      const riskPercentageEl = document.getElementById("riskPercentage");
-      const priceLevelsResultEl = document.getElementById("priceLevelsResult");
-      const calculateBtn = document.getElementById("calculateBtn");
-      const scenarioSelectEl = document.getElementById("scenarioSelect");
+      // Parâmetros reutilizáveis
+      const markerSize = 10;
+      const lineWidth  = 2;
+      
+      // Seleção dos elementos
+      const entryPriceEl       = document.getElementById("entryPrice");
+      const stopLossEl         = document.getElementById("stopLoss");
+      const totalCapitalEl     = document.getElementById("totalCapital");
+      const riskPercentageEl   = document.getElementById("riskPercentage");
+      const priceLevelsResult  = document.getElementById("priceLevelsResult");
+      const calculateBtn       = document.getElementById("calculateBtn");
+      const scenarioChartEl    = document.getElementById("scenarioChart");
       const scenarioDescriptionEl = document.getElementById("scenarioDescription");
-      const scenarioResultEl = document.getElementById("scenarioResult");
-      const scenarioChartContainer = document.getElementById("scenarioChart");
+      const scenarioResultEl      = document.getElementById("scenarioResult");
+      const pointDetailsEl        = document.getElementById("pointDetails");
 
-      // Função para calcular os níveis de preço
+      const entryPriceErrorEl     = document.getElementById("entryPriceError");
+      const stopLossErrorEl       = document.getElementById("stopLossError");
+      const totalCapitalErrorEl   = document.getElementById("totalCapitalError");
+      const riskPercentageErrorEl = document.getElementById("riskPercentageError");
+
+      // Botões de cenário
+      const scenarioButtons = document.querySelectorAll(".scenario-btn");
+
+      // Validação
+      const validateField = (inputEl, errorEl, validateFn) => {
+        const errorMessage = validateFn(inputEl.value);
+        if (errorMessage) {
+          inputEl.classList.add("is-invalid");
+          errorEl.textContent = errorMessage;
+          return false;
+        } else {
+          inputEl.classList.remove("is-invalid");
+          errorEl.textContent = "";
+          return true;
+        }
+      };
+
+      const validateEntryPrice = val => parseFloat(val) > 0 ? null : "Preço de entrada deve ser maior que zero.";
+      const validateStopLoss   = val => parseFloat(val) > 0 ? null : "Stop loss deve ser maior que zero.";
+      const validateTotalCapital = val => parseFloat(val) > 0 ? null : "Capital total deve ser maior que zero.";
+      const validateRiskPercentage = val => {
+        const num = parseFloat(val);
+        return (num >= 1 && num <= 5) ? null : "Risco deve estar entre 1 e 5%.";
+      };
+
+      const validateAllFields = () => {
+        const validEntry = validateField(entryPriceEl, entryPriceErrorEl, validateEntryPrice);
+        const validStop  = validateField(stopLossEl, stopLossErrorEl, validateStopLoss);
+        const validCap   = validateField(totalCapitalEl, totalCapitalErrorEl, validateTotalCapital);
+        const validRisk  = validateField(riskPercentageEl, riskPercentageErrorEl, validateRiskPercentage);
+        return validEntry && validStop && validCap && validRisk;
+      };
+
+      // Cálculo dos níveis
       const getLevels = () => {
         const entryPrice = parseFloat(entryPriceEl.value) || 0;
-        const stopLoss = parseFloat(stopLossEl.value) || 0;
+        const stopLoss   = parseFloat(stopLossEl.value) || 0;
         if (entryPrice === 0 || stopLoss === 0) {
           throw new Error("Preço de entrada e stop loss devem ser maiores que zero.");
         }
@@ -132,19 +207,21 @@
         };
       };
 
-      // Função para calcular e exibir os níveis de preço e tamanho de posição
       const calculateLevels = () => {
         try {
-          const levels = getLevels();
-          const totalCapital = parseFloat(totalCapitalEl.value) || 0;
-          const riskPercentage = parseFloat(riskPercentageEl.value) || 0;
-          if (totalCapital === 0 || riskPercentage === 0) {
-            throw new Error("Capital total e percentual de risco devem ser maiores que zero.");
+          if (!validateAllFields()) {
+            priceLevelsResult.innerHTML = `<div class="text-danger">Corrija os erros acima.</div>`;
+            return null;
           }
-          const riskTotal = totalCapital * (riskPercentage / 100);
+          const levels = getLevels();
+          const totalCap = parseFloat(totalCapitalEl.value);
+          const riskPerc = parseFloat(riskPercentageEl.value);
+          const riskTotal = totalCap * (riskPerc / 100);
           const positionSize = riskTotal / (levels.entryPrice - levels.stopLoss);
           const sizePerEntry = positionSize / 3;
-          priceLevelsResultEl.innerHTML = `
+
+          // Mostra resultados
+          priceLevelsResult.innerHTML = `
             <div class="price-level"><span>Entrada meio:</span> <span class="entry">${levels.entryMid.toFixed(2)}</span></div>
             <div class="price-level"><span>Entrada inferior:</span> <span class="entry">${levels.entryLower.toFixed(2)}</span></div>
             <div class="price-level"><span>Entrada superior:</span> <span class="entry">${levels.entryUpper.toFixed(2)}</span></div>
@@ -155,12 +232,22 @@
             <div class="price-level"><span>Tamanho total da posição:</span> ${positionSize.toFixed(2)}</div>
             <div class="price-level"><span>Tamanho por entrada:</span> ${sizePerEntry.toFixed(2)}</div>
           `;
+          return levels;
         } catch (error) {
-          priceLevelsResultEl.innerHTML = `<div class="text-danger">${error.message}</div>`;
+          priceLevelsResult.innerHTML = `<div class="text-danger">${error.message}</div>`;
+          return null;
         }
       };
 
-      // Configurações para cada cenário
+      // Mapeia dados do cenário em pontos p/ Highcharts
+      const mapDataPoints = (dataArray, labels) => {
+        return dataArray.map((val, idx) => ({
+          y: val,
+          name: labels[idx]
+        }));
+      };
+
+      // Configurações dos cenários
       const scenariosConfig = {
         HighDirect: {
           getChartData: levels => [levels.entryMid, levels.entryUpper, levels.exit1, levels.exit2, levels.exit3],
@@ -200,65 +287,95 @@
         }
       };
 
-      // Função para selecionar e exibir o cenário escolhido, gerando o gráfico
-      const selectScenario = () => {
-        try {
-          const levels = getLevels();
-          const scenario = scenarioSelectEl.value;
-          const config = scenariosConfig[scenario];
-          if (!config) throw new Error("Cenário inválido.");
-          const chartData = config.getChartData(levels);
-          const labels = config.labels;
-  
-          Highcharts.chart(scenarioChartContainer, {
-            chart: {
-              type: 'line',
-              animation: Highcharts.svg,
-              marginRight: 10,
-              backgroundColor: '#fff',
-              style: { fontFamily: '"Roboto", sans-serif' }
-            },
-            title: { text: 'Simulação de Preço', style: { color: '#333' } },
-            xAxis: { categories: labels, crosshair: true },
-            yAxis: {
-              min: Math.min(...chartData) - 5,
-              max: Math.max(...chartData) + 5,
-              title: { text: 'Preço' }
-            },
-            tooltip: {
-              shared: true,
-              animation: true,
-              formatter: function () {
-                return `<b>${this.x}</b><br/>${this.series.name}: ${this.y.toFixed(2)}`;
-              }
-            },
-            plotOptions: {
-              series: {
-                cursor: 'pointer',
-                point: { events: { click: function () { alert('Point: ' + this.y); } } },
-                animation: { duration: 1000, easing: 'easeInOutQuad' }
-              }
-            },
-            series: [{
-              name: 'Preço',
-              data: chartData,
-              color: '#007bff',
-              marker: { size: 10, color: '#007bff', symbol: 'circle' }
-            }],
-            credits: { enabled: false }
-          });
-  
-          scenarioDescriptionEl.innerHTML = config.description;
-          scenarioResultEl.innerHTML = config.result;
-        } catch (error) {
-          scenarioDescriptionEl.innerHTML = `<div class="text-danger">${error.message}</div>`;
-          scenarioResultEl.innerHTML = "";
-        }
+      // Renderiza o gráfico
+      const renderScenarioChart = (scenarioKey, levels) => {
+        const config = scenariosConfig[scenarioKey];
+        if (!config) return;
+        const rawData = config.getChartData(levels);
+        const dataPoints = mapDataPoints(rawData, config.labels);
+
+        Highcharts.chart(scenarioChartEl, {
+          chart: {
+            type: 'line',
+            animation: Highcharts.svg,
+            marginRight: 10,
+            backgroundColor: '#fff',
+            style: { fontFamily: '"Roboto", sans-serif' }
+          },
+          title: { text: 'Simulação de Preço', style: { color: '#333' } },
+          xAxis: { categories: config.labels, crosshair: true },
+          yAxis: {
+            min: Math.min(...rawData) - 5,
+            max: Math.max(...rawData) + 5,
+            title: { text: 'Preço' }
+          },
+          tooltip: {
+            shared: true,
+            animation: true,
+            formatter: function () {
+              return `<b>${this.point.name}</b><br/>Preço: ${this.point.y.toFixed(2)}`;
+            }
+          },
+          plotOptions: {
+            series: {
+              cursor: 'pointer',
+              point: { 
+                events: { 
+                  click: function () {
+                    pointDetailsEl.innerHTML = `<strong>Ponto Selecionado:</strong> ${this.name} - ${this.y.toFixed(2)}`;
+                  }
+                }
+              },
+              lineWidth: lineWidth,
+              animation: { duration: 1000, easing: 'easeInOutQuad' }
+            }
+          },
+          series: [{
+            name: 'Preço',
+            data: dataPoints,
+            marker: { radius: markerSize, symbol: 'circle' }
+          }],
+          credits: { enabled: false }
+        });
+
+        scenarioDescriptionEl.innerHTML = config.description;
+        scenarioResultEl.innerHTML = config.result;
       };
 
-      // Atribuição dos event listeners
-      calculateBtn.addEventListener("click", calculateLevels);
-      scenarioSelectEl.addEventListener("change", selectScenario);
+      // Lógica ao clicar nos botões de cenário
+      const scenarioButtonClick = (scenarioKey) => {
+        const levels = calculateLevels();
+        if (!levels) return;
+        renderScenarioChart(scenarioKey, levels);
+      };
+
+      // Adiciona listeners nos botões de cenário
+      scenarioButtons.forEach(btn => {
+        btn.addEventListener("click", e => {
+          const scenarioKey = e.target.getAttribute("data-scenario");
+          scenarioButtonClick(scenarioKey);
+        });
+      });
+
+      // Debounce para atualizar níveis e gráfico se desejado
+      let debounceTimer;
+      const debounceCalc = () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          calculateLevels();
+        }, 300);
+      };
+
+      // Eventos de input
+      entryPriceEl.addEventListener("input", debounceCalc);
+      stopLossEl.addEventListener("input", debounceCalc);
+      totalCapitalEl.addEventListener("input", debounceCalc);
+      riskPercentageEl.addEventListener("input", debounceCalc);
+
+      // Clique no botão calcular
+      calculateBtn.addEventListener("click", () => {
+        calculateLevels();
+      });
     });
   </script>
 </body>
