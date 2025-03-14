@@ -1,4 +1,5 @@
-let listaDeNumeroSorteados = [];
+let listaDeNumerosSorteados = [];
+let quantidadeDeNuneros = 10;
 let numeroSecreto = gerarNumeroAleatorio();
 let tentativas = 1;
 
@@ -14,12 +15,15 @@ function exibirMensagemInicial() {
 exibirMensagemInicial();
 
 function gerarNumeroAleatorio() {
-    let numeroEscolhido = parseInt(Math.random() * 4 + 1);
-    if (listaDeNumeroSorteados.includes(numeroEscolhido)) { 
+    let numeroEscolhido = parseInt(Math.random() * quantidadeDeNuneros + 1);
+    if (listaDeNumerosSorteados.length == quantidadeDeNuneros){
+        listaDeNumerosSorteados = [];
+    }
+    if (listaDeNumerosSorteados.includes(numeroEscolhido)) { 
         return gerarNumeroAleatorio();
     } else {
-        listaDeNumeroSorteados.push(numeroEscolhido);
-        console.log(listaDeNumeroSorteados);
+        listaDeNumerosSorteados.push(numeroEscolhido);
+        console.log(listaDeNumerosSorteados);
         return numeroEscolhido;
     }
 }
@@ -53,5 +57,5 @@ function reiniciarJogo() {
     exibirMensagemInicial();
     document.getElementById('reiniciar').setAttribute('disabled', true);
     limparCampo();
-    listaDeNumeroSorteados = [];
+    //listaDeNumeroSorteados = [];
 }
