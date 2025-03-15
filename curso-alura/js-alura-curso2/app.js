@@ -6,6 +6,7 @@ let tentativas = 1;
 function exibirNaTela(tag, texto) {
     let campo = document.querySelector(tag);
     campo.innerHTML = texto;
+    responsiveVoise.speak(texto, 'Brazilian Portuguese Female', {rate:1.2});
 }  
 function exibirMensagemInicial() {
     exibirNaTela('h1', 'Jogo do número secreto');
