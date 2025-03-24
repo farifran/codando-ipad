@@ -605,7 +605,7 @@
 
                     const textResult = { original: textVal, sanitized: escapeHTML(sanitizeInput(textVal)) };
                     const numberResult = { original: numberVal, sanitized: String(sanitizeInput(numberVal, 'number')) };
-                    const alphaResult = { original: alphaVal, sanitized: sanitizeInput(alphaVal, 'alphanumeric') };
+                    const alphaResult = { original: alphaVal, sanitized: String(sanitizeInput(alphaVal))};
                     const urlResult = { original: urlVal, sanitized: sanitizeURL(urlVal) };
 
                     resultsDiv.innerHTML = `
