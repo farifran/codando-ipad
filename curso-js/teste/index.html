@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teste de Segurança de Entrada</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="xssProtection.js"></script>
     <style>
         body {
             margin: 0;
@@ -120,7 +121,6 @@
             display: table-header-group;
         }
 
-
         #testList th,
         #testList td {
             padding: 0.75rem 1rem;
@@ -160,7 +160,6 @@
             opacity: 1;
             margin-top: 0;
         }
-
 
         #results p {
             margin-bottom: 1rem;
@@ -231,102 +230,8 @@
             }
         }
     </style>
- <script type="module" src="xssProtection.js"></script>
 </head>
 <body>
-    <script>        
-        import { 
-            sanitizeInput, 
-            escapeHTML, 
-            escapeJS, 
-            escapeCSS, 
-            sanitizeURL, 
-            applyCSP 
-        } from './xssProtection.js';
-   
-        function getChanges(original, sanitized) {
-            return original !== sanitized ? `<span class="changed">(Alterado de: ${escapeHTML(original)})</span>` : '';
-        }
-   
-        function getTestData() {
-            const data = [];
-            const rows = document.querySelectorAll('#testList tr');
-            for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].querySelectorAll('td');
-                if (cells.length === 4) {
-                    data.push({
-                        type: cells[0].textContent.trim(),
-                        value: cells[1].textContent.trim(),
-                        expected: cells[2].textContent.trim(),
-                        description: cells[3].textContent.trim()
-                    });
-                }
-            }
-            return data;
-        }
-   
-        function compareWithExpected(type, result, testData) {
-            const test = testData.find(t => t.type === type && t.value === result.original);
-            if (test) {
-                const comparison = result.sanitized === test.expected ? '✅ Sucesso' : `❌ Falha - Esperado: ${test.expected}`;
-                return `${comparison} (Obtido: ${escapeHTML(result.sanitized)})`; // Adiciona o resultado obtido
-            }
-            return '';
-        }
-   
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.querySelector('#securityTestForm');
-            const resultsDiv = document.querySelector('#results');
-            const textInput = form.querySelector('#textInput');
-            const numberInput = form.querySelector('#numberInput');
-            const alphaInput = form.querySelector('#alphaInput');
-            const urlInput = form.querySelector('#urlInput');
-            const randomTestButton = document.querySelector('#randomTestButton');
-            const testData = getTestData();
-   
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                try {
-                    const textVal = textInput.value;
-                    const numberVal = numberInput.value;
-                    const alphaVal = alphaInput.value;
-                    const urlVal = urlInput.value;
-   
-                    const textResult = { original: textVal, sanitized: escapeHTML(sanitizeInput(textVal, 'string')) };
-                    const numberResult = { original: numberVal, sanitized: String(sanitizeInput(numberVal, 'number')) };
-                    const alphaResult = { original: alphaVal, sanitized: sanitizeInput(alphaVal, 'alphanumeric') };
-                    const urlResult = { original: urlVal, sanitized: sanitizeURL(urlVal) };
-   
-                    const textComparison = compareWithExpected('Texto', textResult, testData);
-                    const numberComparison = compareWithExpected('Número', numberResult, testData);
-                    const alphaComparison = compareWithExpected('Alfanumérico', alphaResult, testData);
-                    const urlComparison = compareWithExpected('URL', urlResult, testData);
-   
-                    resultsDiv.innerHTML = `
-                        <h3>Resultado</h3>
-                        <p><strong>Texto:</strong> ${textComparison}</p>
-                        <p><strong>Número:</strong> ${numberComparison}</p>
-                        <p><strong>Alfanumérico:</strong> ${alphaComparison}</p>
-                        <p><strong>URL:</strong> ${urlComparison}</p>
-                    `;
-                    resultsDiv.classList.add('show');
-                } catch (e) {
-                    resultsDiv.innerHTML = `<p class="error">Erro: ${e.message}</p>`;
-                    resultsDiv.classList.remove('show');
-                }
-            });
-   
-            randomTestButton.addEventListener('click', () => {
-                const randomIndex = Math.floor(Math.random() * testData.length);
-                const test = testData[randomIndex];
-                textInput.value = test.type === 'Texto' ? test.value : '';
-                numberInput.value = test.type === 'Número' ? test.value: '';
-                alphaInput.value = test.type === 'Alfanumérico' ? test.value : '';
-                urlInput.value = test.type === 'URL' ? test.value : '';
-                form.requestSubmit();
-            });
-        });
-    </script>
     <div class="container">
         <h1>Teste de Segurança de Entrada</h1>
         <div id="formContainer">
@@ -427,8 +332,8 @@
                 </tr>
                 <tr>
                     <td>Texto</td>
-                    <td>  Testando espaço no começo e no final  </td>
-                    <td>  Testando espaço no começo e no final  </td>
+                    <td>  Testando espaço no começo e no final  </td>
+                    <td>  Testando espaço no começo e no final  </td>
                     <td>Espaços inicial e final</td>
                 </tr>
                 <tr>
@@ -457,7 +362,7 @@
                 </tr>
                 <tr>
                     <td>Alfanumérico</td>
-                    <td>  TESTE123  </td>
+                    <td>  TESTE123  </td>
                     <td>TESTE123</td>
                     <td>Espaços</td>
                 </tr>
@@ -650,5 +555,86 @@
             </tbody>
         </table>
     </div>
+    <script>
+        // Funções auxiliares
+        function getTestData() {
+            const data = [];
+            const rows = document.querySelectorAll('#testList tr');
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].querySelectorAll('td');
+                if (cells.length === 4) {
+                    data.push({
+                        type: cells[0].textContent.trim(),
+                        value: cells[1].textContent.trim(),
+                        expected: cells[2].textContent.trim(),
+                        description: cells[3].textContent.trim()
+                    });
+                }
+            }
+            return data;
+        }
+
+        function compareWithExpected(type, result, testData) {
+            const test = testData.find(t => t.type === type && t.value === result.original);
+            if (test) {
+                const comparison = result.sanitized === test.expected ? '✅ Sucesso' : `❌ Falha - Esperado: ${test.expected}`;
+                return `${comparison} (Obtido: ${escapeHTML(result.sanitized)})`; // Adiciona o resultado obtido
+            }
+            return '';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('#securityTestForm');
+            const resultsDiv = document.querySelector('#results');
+            const textInput = form.querySelector('#textInput');
+            const numberInput = form.querySelector('#numberInput');
+            const alphaInput = form.querySelector('#alphaInput');
+            const urlInput = form.querySelector('#urlInput');
+            const randomTestButton = document.querySelector('#randomTestButton');
+            const testData = getTestData();
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                try {
+                    const textVal = textInput.value;
+                    const numberVal = numberInput.value;
+                    const alphaVal = alphaInput.value;
+                    const urlVal = urlInput.value;
+
+                    const textResult = { original: textVal, sanitized: escapeHTML(sanitizeInput(textVal)) };
+                    const numberResult = { original: numberVal, sanitized: String(sanitizeInput(numberVal, 'number')) };
+                    const alphaResult = { original: alphaVal, sanitized: sanitizeInput(alphaVal, 'letters') };
+                    const urlResult = { original: urlVal, sanitized: sanitizeURL(urlVal) };
+
+                    const textComparison = compareWithExpected('Texto', textResult, testData);
+                    const numberComparison = compareWithExpected('Número', numberResult, testData);
+                    const alphaComparison = compareWithExpected('Alfanumérico', alphaResult, testData);
+                    const urlComparison = compareWithExpected('URL', urlResult, testData);
+
+                    resultsDiv.innerHTML = `
+                        <h3>Resultado</h3>
+                        <p><strong>Texto:</strong> ${textComparison}</p>
+                        <p><strong>Número:</strong> ${numberComparison}</p>
+                        <p><strong>Alfanumérico:</strong> ${alphaComparison}</p>
+                        <p><strong>URL:</strong> ${urlComparison}</p>
+                    `;
+                    resultsDiv.classList.add('show');
+                } catch (e) {
+                    resultsDiv.innerHTML = `<p class="error">Erro: ${e.message}</p>`;
+                    resultsDiv.classList.remove('show');
+                }
+            });
+
+            randomTestButton.addEventListener('click', () => {
+                const randomIndex = Math.floor(Math.random() * testData.length);
+                const test = testData[randomIndex];
+                textInput.value = test.type === 'Texto' ? test.value : '';
+                numberInput.value = test.type === 'Número' ? test.value: '';
+                alphaInput.value = test.type === 'Alfanumérico' ? test.value : '';
+                urlInput.value = test.type === 'URL' ? test.value : '';
+                form.requestSubmit();
+            });
+        });
+    </script>
 </body>
 </html>
