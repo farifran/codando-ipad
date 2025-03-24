@@ -92,7 +92,8 @@ function escapeJS(input) {
  */
 function sanitizeURL(input) {
     const str = String(input).trim();
-    
+    if (!str) return ' ';
+
     if (/^(javascript|data|vbscript):/i.test(str)) return '#';
 
     try {

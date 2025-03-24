@@ -556,10 +556,13 @@
         </table>
     </div>
     <script>
-        // Funções auxiliares
+       function getChanges(original, sanitized) {
+            return original !== sanitized ? `<span class="changed"> ${escapeHTML(original)}</span>` : '';
+        }
+
         function getTestData() {
             const data = [];
-            const rows = document.querySelectorAll('#testList tr');
+            const rows = document.querySelectorAll('#testList tr'); //lista que podemos
             for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].querySelectorAll('td');
                 if (cells.length === 4) {
@@ -577,9 +580,8 @@
         function compareWithExpected(type, result, testData) {
             const test = testData.find(t => t.type === type && t.value === result.original);
             if (test) {
-                const comparison = result.sanitized === test.expected ? '✅ Sucesso' : `❌ Falha - Esperado: ${test.expected}`;
-                return `${comparison} (Obtido: ${escapeHTML(result.sanitized)})`; // Adiciona o resultado obtido
-            }
+                return comparison = result.sanitized === test.expected ? '✅ Sucesso' : `❌ Valor obtido: ${result.sanitized}`;
+    }
             return '';
         }
 
@@ -603,20 +605,15 @@
 
                     const textResult = { original: textVal, sanitized: escapeHTML(sanitizeInput(textVal)) };
                     const numberResult = { original: numberVal, sanitized: String(sanitizeInput(numberVal, 'number')) };
-                    const alphaResult = { original: alphaVal, sanitized: sanitizeInput(alphaVal, 'letters') };
+                    const alphaResult = { original: alphaVal, sanitized: sanitizeInput(alphaVal, 'alphanumeric') };
                     const urlResult = { original: urlVal, sanitized: sanitizeURL(urlVal) };
-
-                    const textComparison = compareWithExpected('Texto', textResult, testData);
-                    const numberComparison = compareWithExpected('Número', numberResult, testData);
-                    const alphaComparison = compareWithExpected('Alfanumérico', alphaResult, testData);
-                    const urlComparison = compareWithExpected('URL', urlResult, testData);
 
                     resultsDiv.innerHTML = `
                         <h3>Resultado</h3>
-                        <p><strong>Texto:</strong> ${textComparison}</p>
-                        <p><strong>Número:</strong> ${numberComparison}</p>
-                        <p><strong>Alfanumérico:</strong> ${alphaComparison}</p>
-                        <p><strong>URL:</strong> ${urlComparison}</p>
+                        <p><strong>Texto Seguro:</strong> ${textResult.sanitized}<br>${compareWithExpected('Texto', textResult, testData)}</p>
+                        <p><strong>Número Seguro:</strong> ${numberResult.sanitized}<br>${compareWithExpected('Número', numberResult, testData)}</p>
+                        <p><strong>Alfanumérico Seguro:</strong> ${alphaResult.sanitized}<br>${compareWithExpected('Alfanumérico', alphaResult, testData)}</p>
+                        <p><strong>URL Segura:</strong> ${urlResult.sanitized}<br>${compareWithExpected('URL', urlResult, testData)}</p>
                     `;
                     resultsDiv.classList.add('show');
                 } catch (e) {
@@ -629,7 +626,7 @@
                 const randomIndex = Math.floor(Math.random() * testData.length);
                 const test = testData[randomIndex];
                 textInput.value = test.type === 'Texto' ? test.value : '';
-                numberInput.value = test.type === 'Número' ? test.value: '';
+                numberInput.value = test.type === 'Número' ? test.value : '';
                 alphaInput.value = test.type === 'Alfanumérico' ? test.value : '';
                 urlInput.value = test.type === 'URL' ? test.value : '';
                 form.requestSubmit();
