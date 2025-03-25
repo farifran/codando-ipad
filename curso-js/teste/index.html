@@ -557,7 +557,7 @@
     </div>
     <script>
        function getChanges(original, sanitized) {
-            return original !== sanitized ? `<span class="changed"> ${escapeHTML(original)}</span>` : '';
+            return original !== sanitized ? `<span class="changed"> ${escape(original, 'html')}</span>` : '';
         }
 
         function getTestData() {
@@ -580,7 +580,7 @@
         function compareWithExpected(type, result, testData) {
             const test = testData.find(t => t.type === type && t.value === result.original);
             if (test) {
-                return comparison = result.sanitized === test.expected ? '✅ Sucesso' : `❌ Valor experado: ${test.expected}`;
+                return comparison = result.sanitized === test.expected ? '\t✅<br>Sucesso' : `\t❌<br>Valor experado: ${test.expected}`;
     }
             return '';
         }
@@ -603,17 +603,17 @@
                     const alphaVal = alphaInput.value;
                     const urlVal = urlInput.value;
 
-                    const textResult = { original: textVal, sanitized: escapeHTML(sanitizeInput(textVal)) };
+                    const textResult = { original: textVal, sanitized: escape(sanitizeInput(textVal), 'html') };
                     const numberResult = { original: numberVal, sanitized: String(sanitizeInput(numberVal, 'number')) };
                     const alphaResult = { original: alphaVal, sanitized: String(sanitizeInput(alphaVal))};
                     const urlResult = { original: urlVal, sanitized: sanitizeURL(urlVal) };
 
                     resultsDiv.innerHTML = `
                         <h3>Resultado</h3>
-                        <p><strong>Texto obtido:</strong> ${textResult.sanitized}<br>${compareWithExpected('Texto', textResult, testData)}</p>
-                        <p><strong>Número Obtido:</strong> ${numberResult.sanitized}<br>${compareWithExpected('Número', numberResult, testData)}</p>
-                        <p><strong>Alfanumérico Obtido:</strong> ${alphaResult.sanitized}<br>${compareWithExpected('Alfanumérico', alphaResult, testData)}</p>
-                        <p><strong>URL Obtida:</strong> ${urlResult.sanitized}<br>${compareWithExpected('URL', urlResult, testData)}</p>
+                        <p><strong>Texto obtido:</strong> ${textResult.sanitized}${compareWithExpected('Texto', textResult, testData)}</p>
+                        <p><strong>Número Obtido:</strong> ${numberResult.sanitized}${compareWithExpected('Número', numberResult, testData)}</p>
+                        <p><strong>Alfanumérico Obtido:</strong> ${alphaResult.sanitized}${compareWithExpected('Alfanumérico', alphaResult, testData)}</p>
+                        <p><strong>URL Obtida:</strong> ${urlResult.sanitized}${compareWithExpected('URL', urlResult, testData)}</p>
                     `;
                     resultsDiv.classList.add('show');
                 } catch (e) {
